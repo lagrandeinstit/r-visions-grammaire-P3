@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mission Grammaire - Révisions P3</title>
+<style>
+  :root{--ink:#1f2937;--paper:#fffaf0;--accent:#ff7aa2;--accent2:#7dd3fc;--good:#22c55e;--bad:#ef4444;--card:#ffffff;--soft:#f3f4f6;}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(135deg,#fff7ed,#eff6ff);color:var(--ink)}
+  header{padding:28px 18px;text-align:center;background:#111827;color:white;border-bottom:6px solid var(--accent)}
+  h1{margin:0;font-size:clamp(2rem,5vw,4rem);letter-spacing:.5px} header p{margin:8px 0 0;font-size:1.05rem;opacity:.9}
+  main{max-width:1050px;margin:0 auto;padding:22px}.panel{background:var(--card);border:3px solid #111827;border-radius:22px;padding:18px;box-shadow:8px 8px 0 #11182722;margin-bottom:18px}
+  .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.pill{padding:9px 14px;border:2px solid #111827;border-radius:999px;background:white;font-weight:700}.score{background:#dcfce7}.progress{height:16px;background:#e5e7eb;border:2px solid #111827;border-radius:999px;overflow:hidden;flex:1;min-width:180px}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.25s}
+  .screen{display:none}.screen.active{display:block}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.choice,.btn{border:2px solid #111827;border-radius:14px;background:white;padding:12px 14px;font-weight:750;cursor:pointer;transition:.15s;text-align:left}.choice:hover,.btn:hover{transform:translateY(-2px);box-shadow:4px 4px 0 #11182722}.choice.selected{background:#fce7f3}.choice.good{background:#dcfce7;border-color:var(--good)}.choice.bad{background:#fee2e2;border-color:var(--bad)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;background:#111827;color:white;text-align:center}.btn.secondary{background:white;color:#111827}.btn.pink{background:var(--accent);color:#111827}.question-title{font-size:1.45rem;margin:0 0 12px}.small{font-size:.92rem;opacity:.78}.wordbank{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}.token{padding:10px 12px;border:2px solid #111827;border-radius:12px;background:#fff;cursor:pointer;font-weight:700}.token.used{opacity:.35}.sentence-box{min-height:52px;background:#f9fafb;border:2px dashed #111827;border-radius:14px;padding:10px;display:flex;gap:8px;flex-wrap:wrap}.feedback{min-height:34px;font-weight:800;margin-top:12px}.ok{color:var(--good)}.ko{color:var(--bad)}
+  input[type=text]{width:100%;padding:12px;border:2px solid #111827;border-radius:12px;font-size:1rem}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.tag{display:inline-block;padding:4px 8px;border:2px solid #111827;border-radius:999px;background:#fef3c7;font-weight:800}.hidden{display:none}.end{text-align:center}.big{font-size:3rem;margin:10px}.note{background:#fef3c7;border:2px solid #111827;border-radius:14px;padding:12px}.mini-card{padding:12px;border:2px solid #111827;border-radius:14px;background:#f9fafb}.dropzone{min-height:90px;border:2px dashed #111827;border-radius:14px;padding:10px;background:white}.columns{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.drag{margin:6px;padding:8px 10px;background:#e0f2fe;border:2px solid #111827;border-radius:10px;cursor:grab;font-weight:700}.dropzone.over{background:#fce7f3}.label{font-weight:900;margin-bottom:8px}
+</style>
+</head>
+<body>
+<header><h1>🎯 Mission Grammaire</h1><p>Révisions P3 — noms, déterminants, adjectifs, GN, phrase négative, groupe sujet et groupe prédicat</p></header>
+<main>
+  <section class="panel topbar"><span class="pill" id="level">Mission 1 / 10</span><div class="progress"><div class="bar" id="bar"></div></div><span class="pill score">Score : <span id="score">0</span></span></section>
+  <section id="start" class="panel screen active"><h2>Prêt·e pour la mission ?</h2><p>Lis bien chaque consigne. Tu gagnes 1 point par bonne réponse. Certaines missions demandent de cliquer sur plusieurs réponses.</p><button class="btn pink" onclick="startGame()">Commencer 🚀</button></section>
+  <section id="game" class="panel screen"><h2 class="question-title" id="qtitle"></h2><div id="qbody"></div><div class="feedback" id="feedback"></div><div class="row"><button class="btn" id="checkBtn" onclick="checkAnswer()">Valider</button><button class="btn secondary hidden" id="nextBtn" onclick="nextQuestion()">Question suivante</button></div></section>
+  <section id="end" class="panel screen end"><div class="big">🏆</div><h2>Mission terminée !</h2><p class="big"><span id="finalScore"></span>/10</p><p id="finalMsg"></p><button class="btn pink" onclick="location.reload()">Rejouer</button></section>
+</main>
+<script>
+const questions = [
+{type:'multi', title:'1. La phrase', prompt:'Quelles erreurs vois-tu dans cette phrase ? « nous avons photographié le paysage »', options:['majuscule','ordre des mots','point'], answers:['majuscule','point'], hint:'Une phrase commence par une majuscule et se termine par un point.'},
+{type:'multi', title:'2. La phrase', prompt:'Quelles erreurs vois-tu dans cette phrase ? « Le musicien joue morceau un joli »', options:['majuscule','ordre des mots','point'], answers:['ordre des mots','point'], hint:'Les mots doivent être dans le bon ordre et la phrase doit se terminer par un point.'},
+{type:'order', title:'3. Remets les mots dans l’ordre', prompt:'ranges – tu – le – dictionnaire – sur – l’étagère', words:['Tu','ranges','le','dictionnaire','sur','l’étagère.'], answer:'Tu ranges le dictionnaire sur l’étagère.'},
+{type:'order', title:'4. Remets les mots dans l’ordre', prompt:'pain – matin – boulanger – chaque – le – cuit – son', words:['Chaque','matin,','le','boulanger','cuit','son','pain.'], answer:'Chaque matin, le boulanger cuit son pain.'},
+{type:'single', title:'5. Phrase affirmative ou négative ?', prompt:'« Les poissons ne courent pas. »', options:['phrase affirmative','phrase négative'], answers:['phrase négative'], hint:'Repère les petits mots de négation : ne…pas, n’…jamais, n’…aucun…'},
+{type:'single', title:'6. Phrase affirmative ou négative ?', prompt:'« Liam viendra chez moi samedi. »', options:['phrase affirmative','phrase négative'], answers:['phrase affirmative']},
+{type:'single', title:'7. Phrase affirmative ou négative ?', prompt:'« Je n’ai aucun ami. »', options:['phrase affirmative','phrase négative'], answers:['phrase négative'], hint:'Aucun est un mot de négation.'},
+{type:'single', title:'8. Transformer une phrase', prompt:'Quelle phrase est la transformation négative correcte de « Lucie va à la piscine. » ?', options:['Lucie ne va pas à la piscine.','Lucie va pas à la piscine.','Lucie ne va à la piscine.'], answers:['Lucie ne va pas à la piscine.']},
+{type:'single', title:'9. Nom propre ou nom commun ?', prompt:'Dans la phrase « La ville de Liège se trouve en Belgique. », que sont « Liège » et « Belgique » ?', options:['deux noms communs','deux noms propres','un adjectif et un nom commun'], answers:['deux noms propres']},
+{type:'multi', title:'10. Noms communs / noms propres', prompt:'Clique uniquement sur les noms propres.', options:['jardin','Clémence','table','Namur','canapé','César'], answers:['Clémence','Namur','César']},
+{type:'single', title:'11. Nom commun ou nom propre ?', prompt:'Dans « Chez sa tante, il y a un énorme chat qui s’appelle César. », quel mot est un nom propre ?', options:['tante','chat','César','énorme'], answers:['César']},
+{type:'single', title:'12. Genre et nombre', prompt:'Quel est le genre et le nombre de « mes frères » ?', options:['féminin singulier','masculin singulier','féminin pluriel','masculin pluriel'], answers:['masculin pluriel']},
+{type:'single', title:'13. Genre et nombre', prompt:'Quel est le genre et le nombre de « ma barbe » ?', options:['féminin singulier','masculin singulier','féminin pluriel','masculin pluriel'], answers:['féminin singulier']},
+{type:'single', title:'14. Genre et nombre', prompt:'Quel est le genre et le nombre de « des sapins » ?', options:['féminin singulier','masculin singulier','féminin pluriel','masculin pluriel'], answers:['masculin pluriel']},
+{type:'classer', title:'15. Classe les groupes nominaux', prompt:'Classe chaque GN dans la bonne case.', items:[['une luge','féminin singulier'],['mon tablier','masculin singulier'],['les boules','féminin pluriel'],['des jeux','masculin pluriel']], cats:['féminin singulier','masculin singulier','féminin pluriel','masculin pluriel']},
+{type:'single', title:'16. Les déterminants', prompt:'Choisis un déterminant correct pour compléter : « ___ chevaux »', options:['le','un','des','cette'], answers:['des'], hint:'Chevaux est un nom pluriel.'},
+{type:'multi', title:'17. Les déterminants', prompt:'Clique uniquement sur les déterminants.', options:['La','petite','taupe','Cette','cuisine','trois','jolies','L’'], answers:['La','Cette','trois','L’']},
+{type:'single', title:'18. Les déterminants', prompt:'Dans « Ta fille mange dix bonbons roses. », quel mot est un déterminant ?', options:['fille','mange','dix','roses'], answers:['dix']},
+{type:'multi', title:'19. Les adjectifs', prompt:'Clique uniquement sur les adjectifs.', options:['gentille','garçon','verte','manger','magnifique','délicieuse'], answers:['gentille','verte','magnifique','délicieuse']},
+{type:'multi', title:'20. Les adjectifs', prompt:'Dans « La méchante sorcière prépare une potion magique dégoutante. », clique sur les adjectifs.', options:['méchante','sorcière','potion','magique','dégoutante'], answers:['méchante','magique','dégoutante']},
+{type:'single', title:'21. Les adjectifs', prompt:'Quel est l’intrus dans cette liste ?', options:['délicieux','belle','table','vieux'], answers:['table'], hint:'Les autres mots sont des adjectifs.'},
+{type:'single', title:'22. Le groupe nominal', prompt:'Dans le GN « une lapine blanche », quel est le nom noyau ?', options:['une','lapine','blanche'], answers:['lapine']},
+{type:'single', title:'23. Le groupe nominal', prompt:'Dans le GN « des étoiles filantes », quel est le nom noyau ?', options:['des','étoiles','filantes'], answers:['étoiles']},
+{type:'single', title:'24. Le groupe nominal', prompt:'Quelle est la transposition correcte de « une lapine blanche » au masculin pluriel ?', options:['un lapin blanc','des lapins blancs','des lapines blanches'], answers:['des lapins blancs']},
+{type:'single', title:'25. Le groupe nominal', prompt:'Quelle est la transposition correcte de « mes longues jupes » au féminin singulier ?', options:['ma longue jupe','mon long jupe','mes longs jupes'], answers:['ma longue jupe']},
+{type:'classer', title:'26. La phrase à deux pattes', prompt:'Classe chaque groupe dans la bonne fonction : Groupe sujet ou Groupe prédicat.', items:[['Le petit chat','Groupe sujet'],['a mangé la souris','Groupe prédicat'],['Les enfants','Groupe sujet'],['dessinent sur le tableau','Groupe prédicat']], cats:['Groupe sujet','Groupe prédicat']},
+{type:'classer', title:'27. La phrase à deux pattes', prompt:'Classe chaque groupe dans la bonne fonction : Groupe sujet ou Groupe prédicat.', items:[['Nous','Groupe sujet'],['mangeons des tomates tous les jours','Groupe prédicat'],['Les œufs','Groupe sujet'],['sont tombés par terre','Groupe prédicat']], cats:['Groupe sujet','Groupe prédicat']},
+{type:'single', title:'28. La phrase à deux pattes', prompt:'Dans « Juliette promène son chien dans le parc. », quel groupe est le groupe sujet ?', options:['Juliette','promène son chien dans le parc','son chien'], answers:['Juliette']},
+{type:'single', title:'29. Classes et fonctions', prompt:'Dans « Cette belle fille cuisinera une grande tarte rapidement. », quelle est la classe de « belle » ?', options:['déterminant','nom commun','adjectif','verbe'], answers:['adjectif']},
+{type:'single', title:'30. Classes et fonctions', prompt:'Dans « Elle fera le ménage dans sa grande chambre ce soir. », quelle est la classe de « Elle » ?', options:['déterminant','pronom personnel','nom commun','adjectif'], answers:['pronom personnel']}
+];
+let index=0, score=0, selected=[], built=[], locked=false;
+function $(id){return document.getElementById(id)}
+function startGame(){ $('start').classList.remove('active'); $('game').classList.add('active'); render(); }
+function updateTop(){ $('level').textContent=`Mission ${index+1} / ${questions.length}`; $('bar').style.width=`${(index/questions.length)*100}%`; $('score').textContent=score; }
+function render(){ locked=false; selected=[]; built=[]; updateTop(); $('feedback').textContent=''; $('feedback').className='feedback'; $('checkBtn').classList.remove('hidden'); $('nextBtn').classList.add('hidden'); const q=questions[index]; $('qtitle').textContent=q.title; let html=`<p><strong>${q.prompt}</strong></p>`;
+ if(q.type==='single'||q.type==='multi'){ html+=`<div class="grid">${q.options.map(o=>`<button class="choice" data-v="${o}" onclick="toggleChoice(this,'${q.type}')">${o}</button>`).join('')}</div>`; }
+ if(q.type==='order'){ html+=`<div class="sentence-box" id="sentence"></div><div class="wordbank">${q.words.sort(()=>Math.random()-.5).map(w=>`<span class="token" onclick="addWord(this)">${w}</span>`).join('')}</div><button class="btn secondary" onclick="resetOrder()">Effacer</button>`; }
+ if(q.type==='classer'){ html+=`<div class="wordbank" id="dragbank">${q.items.map((it,i)=>`<div class="drag" draggable="true" data-cat="${it[1]}" id="drag${i}">${it[0]}</div>`).join('')}</div><div class="columns">${q.cats.map(c=>`<div><div class="label">${c}</div><div class="dropzone" data-cat="${c}"></div></div>`).join('')}</div>`; }
+ $('qbody').innerHTML=html; if(q.type==='classer') enableDrag(); }
+function toggleChoice(btn,type){ if(locked)return; if(type==='single'){document.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected')); selected=[btn.dataset.v]; btn.classList.add('selected');} else {btn.classList.toggle('selected'); selected = [...document.querySelectorAll('.choice.selected')].map(b=>b.dataset.v);} }
+function addWord(el){ if(locked||el.classList.contains('used'))return; el.classList.add('used'); built.push(el.textContent); $('sentence').innerHTML=built.map(w=>`<span class="tag">${w}</span>`).join(' '); }
+function resetOrder(){ built=[]; document.querySelectorAll('.token').forEach(t=>t.classList.remove('used')); $('sentence').innerHTML=''; }
+function enableDrag(){ let drags=document.querySelectorAll('.drag'), zones=document.querySelectorAll('.dropzone'); drags.forEach(d=>d.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',d.id))); zones.forEach(z=>{z.addEventListener('dragover',e=>{e.preventDefault(); z.classList.add('over')}); z.addEventListener('dragleave',()=>z.classList.remove('over')); z.addEventListener('drop',e=>{e.preventDefault(); z.classList.remove('over'); let id=e.dataTransfer.getData('text/plain'); z.appendChild($(id));});}); }
+function checkAnswer(){ if(locked)return; const q=questions[index]; let ok=false;
+ if(q.type==='single'||q.type==='multi'){ ok = q.answers.length===selected.length && q.answers.every(a=>selected.includes(a)); document.querySelectorAll('.choice').forEach(b=>{ if(q.answers.includes(b.dataset.v)) b.classList.add('good'); else if(b.classList.contains('selected')) b.classList.add('bad');}); }
+ if(q.type==='order'){ ok = built.join(' ')===q.answer; }
+ if(q.type==='classer'){ ok=true; document.querySelectorAll('.dropzone').forEach(z=>{[...z.children].forEach(ch=>{ if(ch.dataset.cat!==z.dataset.cat) ok=false; });}); if(document.querySelectorAll('.drag').length!==q.items.length) ok=false; }
+ locked=true; if(ok){score++; $('feedback').textContent='Bravo ! ✅'; $('feedback').classList.add('ok');} else {$('feedback').innerHTML='Oups, vérifie bien. ❌ '+(q.hint?'<span class="small">'+q.hint+'</span>':''); $('feedback').classList.add('ko');}
+ $('score').textContent=score; $('checkBtn').classList.add('hidden'); $('nextBtn').classList.remove('hidden'); }
+function nextQuestion(){ index++; if(index>=questions.length){ $('bar').style.width='100%'; $('game').classList.remove('active'); $('end').classList.add('active'); $('finalScore').textContent=score; $('finalMsg').textContent = score>=Math.ceil(questions.length*0.8)?'Super révision !':'Encore un petit entrainement et ce sera parfait.'; } else render(); }
+</script>
+</body>
+</html>
